@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.html": "html",
+        "ostream": "cpp",
+        "__split_buffer": "cpp",
+        "vector": "cpp",
+        "iostream": "cpp",
+        "__bit_reference": "cpp",
+        "__string": "cpp",
+        "cstring": "cpp"
+    }
+}
