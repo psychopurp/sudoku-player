@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <fstream>
+#include <map>
 using namespace std;
 
 typedef vector<vector<char> > Board;
@@ -71,7 +72,7 @@ public:
         blockUsed[(i / 3) * 3 + j / 3] ^= (1 << digit);
     }
 
-    void solveSudoku(Board board)
+    vector<Board> solveSudoku(Board board)
     {
         initState();
         for (int i = 0; i < N; i++)
@@ -90,6 +91,7 @@ public:
             }
         }
         DFS(board, 0);
+        return result;
     }
 
     void DFS(Board &board, int pos)
@@ -137,6 +139,107 @@ public:
         }
         return true;
     }
+
+    Board generateBoard(int digCount)
+    {
+        vector<vector<char> > board(N, vector<char>(N, '.'));
+        vector<int> row = getRand9();
+        for (int i = 0; i < 3; i++)
+        {
+            board[3][i + 3] = row[i] + '1';
+            board[4][i + 3] = row[i + 3] + '1';
+            board[5][i + 3] = row[i + 6] + '1';
+        }
+        copySquare(board, 3, 3, true);
+        copySquare(board, 3, 3, false);
+        copySquare(board, 3, 0, false);
+        copySquare(board, 3, 6, false);
+
+        while (digCount)
+        {
+            int x = rand() % 9;
+            int y = rand() % 9;
+            if (board[x][y] == '.')
+                continue;
+            char tmp = board[x][y];
+            board[x][y] = '.';
+
+            solveSudoku(board);
+            if (result.size() == 1)
+            {
+                digCount--;
+            }
+            else
+            {
+                board[x][y] = tmp;
+            }
+        }
+        // printBoard(board);
+        // cout << "spaces " << player.spaces.size() << "\n";
+        if (!checkBoard(board))
+        {
+            cout << "wrong board" << endl;
+        }
+
+        return board;
+    }
+
+    vector<int> getRand9()
+    {
+        vector<int> result;
+        int digit = 0;
+        while (result.size() != 9)
+        {
+            int num = rand() % 9;
+            if ((1 << num) & digit)
+            {
+                continue;
+            }
+            else
+            {
+                result.push_back(num);
+                digit ^= (1 << num);
+            }
+        }
+        return result;
+    }
+
+    void copySquare(Board &board, int src_x, int src_y, bool isRow)
+    {
+        int rand_tmp = rand() % 2 + 1;
+        int order_first[3] = {1, 2, 0};
+        int order_second[3] = {2, 0, 1};
+        if (rand_tmp == 2)
+        {
+            order_first[0] = 2;
+            order_first[1] = 0;
+            order_first[2] = 1;
+            order_second[0] = 1;
+            order_second[1] = 2;
+            order_second[2] = 0;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            if (isRow)
+            {
+                board[src_x][i] = board[src_x + order_first[0]][src_y + i];
+                board[src_x + 1][i] = board[src_x + order_first[1]][src_y + i];
+                board[src_x + 2][i] = board[src_x + order_first[2]][src_y + i];
+                board[src_x][i + 6] = board[src_x + order_second[0]][src_y + i];
+                board[src_x + 1][i + 6] = board[src_x + order_second[1]][src_y + i];
+                board[src_x + 2][i + 6] = board[src_x + order_second[2]][src_y + i];
+            }
+            else
+            {
+                board[i][src_y] = board[src_x + i][src_y + order_first[0]];
+                board[i][src_y + 1] = board[src_x + i][src_y + order_first[1]];
+                board[i][src_y + 2] = board[src_x + i][src_y + order_first[2]];
+                board[i + 6][src_y] = board[src_x + i][src_y + order_second[0]];
+                board[i + 6][src_y + 1] = board[src_x + i][src_y + order_second[1]];
+                board[i + 6][src_y + 2] = board[src_x + i][src_y + order_second[2]];
+            }
+        }
+    }
 };
 
 char data[9][9] = {
@@ -172,113 +275,6 @@ void test()
     cout << endl;
 }
 
-int getRand()
-{
-    return rand() % 9;
-}
-
-vector<int> getRand9()
-{
-    vector<int> result;
-    int digit = 0;
-    while (result.size() != 9)
-    {
-        int num = getRand();
-        if ((1 << num) & digit)
-        {
-            continue;
-        }
-        else
-        {
-            result.push_back(num);
-            digit ^= (1 << num);
-        }
-    }
-    return result;
-}
-
-void copySquare(Board &board, int src_x, int src_y, bool isRow)
-{
-    int rand_tmp = rand() % 2 + 1;
-    int order_first[3] = {1, 2, 0};
-    int order_second[3] = {2, 0, 1};
-    if (rand_tmp == 2)
-    {
-        order_first[0] = 2;
-        order_first[1] = 0;
-        order_first[2] = 1;
-        order_second[0] = 1;
-        order_second[1] = 2;
-        order_second[2] = 0;
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        if (isRow)
-        {
-            board[src_x][i] = board[src_x + order_first[0]][src_y + i];
-            board[src_x + 1][i] = board[src_x + order_first[1]][src_y + i];
-            board[src_x + 2][i] = board[src_x + order_first[2]][src_y + i];
-            board[src_x][i + 6] = board[src_x + order_second[0]][src_y + i];
-            board[src_x + 1][i + 6] = board[src_x + order_second[1]][src_y + i];
-            board[src_x + 2][i + 6] = board[src_x + order_second[2]][src_y + i];
-        }
-        else
-        {
-            board[i][src_y] = board[src_x + i][src_y + order_first[0]];
-            board[i][src_y + 1] = board[src_x + i][src_y + order_first[1]];
-            board[i][src_y + 2] = board[src_x + i][src_y + order_first[2]];
-            board[i + 6][src_y] = board[src_x + i][src_y + order_second[0]];
-            board[i + 6][src_y + 1] = board[src_x + i][src_y + order_second[1]];
-            board[i + 6][src_y + 2] = board[src_x + i][src_y + order_second[2]];
-        }
-    }
-}
-
-Board generateBoard(int emptySize)
-{
-    vector<vector<char> > board(N, vector<char>(N, '.'));
-    vector<int> row = getRand9();
-    for (int i = 0; i < 3; i++)
-    {
-        board[3][i + 3] = row[i] + '1';
-        board[4][i + 3] = row[i + 3] + '1';
-        board[5][i + 3] = row[i + 6] + '1';
-    }
-    copySquare(board, 3, 3, true);
-    copySquare(board, 3, 3, false);
-    copySquare(board, 3, 0, false);
-    copySquare(board, 3, 6, false);
-    SudokuPlayer player;
-
-    while (emptySize)
-    {
-        int x = rand() % 9;
-        int y = rand() % 9;
-        if (board[x][y] == '.')
-            continue;
-        char tmp = board[x][y];
-        board[x][y] = '.';
-
-        player.solveSudoku(board);
-        if (player.result.size() == 1)
-        {
-            emptySize--;
-        }
-        else
-        {
-            board[x][y] = tmp;
-        }
-    }
-    player.printBoard(board);
-    // cout << "spaces " << player.spaces.size() << "\n";
-    if (!player.checkBoard(board))
-    {
-        cout << "wrong board" << endl;
-    }
-
-    return board;
-}
-
 vector<Board> readFile(string filePath)
 {
     ifstream infile;
@@ -298,7 +294,7 @@ vector<Board> readFile(string filePath)
         }
         for (int i = 0; i < strlen(data); i++)
         {
-            if ('1' <= data[i] && data[i] <= '9')
+            if (('1' <= data[i] && data[i] <= '9') || data[i] == '.')
             {
                 row.push_back(data[i]);
             }
@@ -310,28 +306,51 @@ vector<Board> readFile(string filePath)
     return boards;
 }
 
-void test2()
+void writeFile(vector<Board> boards, ofstream &f)
 {
-    generateBoard(50);
-    return;
-    for (int i = 20; i < 56; i++)
+    for (int k = 0; k < boards.size(); k++)
     {
-        generateBoard(i);
-        cout << "--------------------------" << i << endl;
+        for (int i = 0; i < boards[k].size(); i++)
+        {
+            for (int j = 0; j < boards[k][i].size(); j++)
+            {
+                f << boards[k][i][j] << " ";
+            }
+            f << "\n";
+        }
+        f << "------- " << k << " -------" << endl;
     }
 }
 
-int main(int argc, char *argv[])
+void test2(const char **param)
 {
-    srand((unsigned)time(NULL));
+    // SudokuPlayer player;
+    // player.generateBoard(50);
+    // return;
+    // for (int i = 20; i < 56; i++)
+    // {
+    //     player.generateBoard(i);
+    //     cout << "--------------------------" << i << endl;
+    // }
+    // for (int i = 0; strlen(param[i]) != 0; i++)
+    // {
+    //     cout << param[i] << endl;
+    // }
 
-    // test2();
-    int opt = 0;
-    string outputFile, inputFile;
-    int compeleteBoardCount;
-    int gameNumber, gameLevel;
-    int digRangeStart, digRangeEnd;
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     int digit = rand() % 36 + 20;
+    //     cout << digit << " ";
+    // }
+}
+
+map<char, string> parse(int argc, char *argv[])
+{
+    map<char, string> params;
+    int compeleteBoardCount, gameNumber, gameLevel;
     vector<int> range;
+    string inputFile;
+    char opt = 0;
     while ((opt = getopt(argc, argv, "c:s:n:m:r:u")) != -1)
     {
         switch (opt)
@@ -341,57 +360,36 @@ int main(int argc, char *argv[])
             if (compeleteBoardCount < 1 || compeleteBoardCount > 1000000)
             {
                 printf("生成数独终盘数量范围在1～1000000之间\n");
+                exit(0);
             }
-            else
-            {
-                ofstream outfile;
-                outfile.open("game.txt", ios::out | ios::trunc);
-                for (int i = 0; i < compeleteBoardCount; i++)
-                {
-                    Board b = generateBoard(0);
-                    for (int i = 0; i < b.size(); i++)
-                    {
-                        for (int j = 0; j < b[i].size(); j++)
-                        {
-                            outfile << b[i][j] << " ";
-                        }
-                        outfile << "\n";
-                    }
-                    outfile << "----------------------------" << endl;
-                }
-                outfile.close();
-            }
+            params[opt] = string(optarg);
             break;
         case 's':
-
             inputFile = string(optarg);
             if (access(optarg, 0) == -1)
             {
-                cout << "file does not exist" << endl;
-                break;
+                printf("file does not exist\n");
+                exit(0);
             }
-            vector<Board> boards = readFile(inputFile);
-
+            params[opt] = string(optarg);
             break;
         case 'n':
             gameNumber = atoi(optarg);
             if (gameNumber < 1 || gameNumber > 10000)
             {
-                printf("生成数独终盘数量范围在1～10000之间\n");
+                printf("生成数独游戏数量范围在1～10000之间\n");
+                exit(0);
             }
-            else
-            {
-            }
+            params[opt] = string(optarg);
             break;
         case 'm':
             gameLevel = atoi(optarg);
             if (gameLevel < 1 || gameLevel > 3)
             {
-                printf("生成数独终盘数量范围在1～3之间\n");
+                printf("生成游戏难度的范围在1～3之间\n");
+                exit(0);
             }
-            else
-            {
-            }
+            params[opt] = string(optarg);
             break;
         case 'r':
             char *p;
@@ -403,13 +401,143 @@ int main(int argc, char *argv[])
             }
             if (range.size() != 2)
             {
-                printf("请输入一个范围参数");
+                printf("请输入一个范围参数\n");
+                exit(0);
             }
-
+            if ((range[0] >= range[1]) || range[0] < 20 || range[1] > 55)
+            {
+                printf("请输入合法范围20～55\n");
+                exit(0);
+            }
+            params[opt] = string(optarg);
             break;
         case 'u':
+            params[opt] = string();
+            break;
+        default:
+            printf("请输入合法参数\n");
+            exit(0);
             break;
         }
     }
+    return params;
+}
+
+void generateGame(int gameNumber, int gameLevel, vector<int> digCount, ofstream &outfile, SudokuPlayer &player)
+{
+    for (int i = 0; i < gameNumber; i++)
+    {
+        int cnt = 0;
+        if (digCount.size() == 1)
+        {
+            cnt = digCount[0];
+        }
+        else
+        {
+            cnt = rand() % (digCount[1] - digCount[0] + 1) + digCount[0];
+        }
+        Board b = player.generateBoard(cnt);
+        vector<Board> bs;
+        bs.push_back(b);
+        writeFile(bs, outfile);
+    }
+    outfile.close();
+}
+
+int main(int argc, char *argv[])
+{
+    srand((unsigned)time(NULL));
+    SudokuPlayer player;
+
+    // test2(p);
+    // return 0;
+
+    map<char, string> params = parse(argc, argv);
+    map<char, string>::iterator it, tmp;
+
+    int opt = 0;
+
+    vector<int> range;
+    int gameNumber;
+    int gameLevel = 0;
+
+    vector<Board> boards;
+    ofstream outfile;
+
+    it = params.begin();
+    while (it != params.end())
+    {
+        switch (it->first)
+        {
+        case 'c':
+            outfile.open("game.txt", ios::out | ios::trunc);
+            range.push_back(0);
+            generateGame(atoi(it->second.c_str()), 0, range, outfile, player);
+            range.clear();
+            break;
+
+        case 's':
+            outfile.open("sudoku.txt", ios::out | ios::trunc);
+            boards = readFile(it->second);
+            for (int i = 0; i < boards.size(); i++)
+            {
+                vector<Board> result = player.solveSudoku(boards[i]);
+                writeFile(result, outfile);
+            }
+            outfile.close();
+            break;
+
+        case 'n':
+        case 'm':
+        case 'r':
+        case 'u':
+            tmp = params.find('n');
+            if (tmp == params.end())
+            {
+                printf("缺少参数 n \n");
+                exit(0);
+            }
+
+            gameNumber = atoi(tmp->second.c_str());
+
+            tmp = params.find('u');
+            if (tmp != params.end())
+            {
+                // TODO： 保证唯一
+            }
+
+            tmp = params.find('m');
+            if (tmp != params.end())
+            {
+                gameLevel = atoi(tmp->second.c_str());
+            }
+
+            tmp = params.find('r');
+            if (tmp != params.end())
+            {
+                char *p;
+                char *pc = new char[100];
+                strcpy(pc, tmp->second.c_str());
+                p = strtok(pc, "~");
+                while (p)
+                {
+                    range.push_back(atoi(p));
+                    p = strtok(NULL, "~");
+                }
+            }
+            else
+            {
+                range.push_back(20);
+                range.push_back(55);
+            }
+            outfile.open("game.txt", ios::out | ios::trunc);
+            generateGame(gameNumber, gameLevel, range, outfile, player);
+            range.clear();
+            break;
+        }
+        // cout << it->first << ' ' << it->second << endl;
+        it++;
+    }
+
     return 0;
 }
