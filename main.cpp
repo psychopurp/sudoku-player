@@ -279,6 +279,37 @@ Board generateBoard(int emptySize)
     return board;
 }
 
+vector<Board> readFile(string filePath)
+{
+    ifstream infile;
+    vector<Board> boards;
+    infile.open(filePath);
+    char data[100];
+    Board tmp;
+    vector<char> row;
+    while (!infile.eof())
+    {
+        infile.getline(data, 100);
+        if (data[0] == '-')
+        {
+            boards.push_back(Board(tmp));
+            tmp.clear();
+            continue;
+        }
+        for (int i = 0; i < strlen(data); i++)
+        {
+            if ('1' <= data[i] && data[i] <= '9')
+            {
+                row.push_back(data[i]);
+            }
+        }
+        tmp.push_back(vector<char>(row));
+        row.clear();
+    }
+    infile.close();
+    return boards;
+}
+
 void test2()
 {
     generateBoard(50);
@@ -332,6 +363,15 @@ int main(int argc, char *argv[])
             }
             break;
         case 's':
+
+            inputFile = string(optarg);
+            if (access(optarg, 0) == -1)
+            {
+                cout << "file does not exist" << endl;
+                break;
+            }
+            vector<Board> boards = readFile(inputFile);
+
             break;
         case 'n':
             gameNumber = atoi(optarg);
@@ -371,11 +411,5 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    return 0;
-
-    test();
-
-    for (int i = 0; i < 100; i++)
-        cout << getRand() << '\t';
     return 0;
 }
