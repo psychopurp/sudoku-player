@@ -15,6 +15,7 @@ const int N = 9;
 class SudokuPlayer
 {
 private:
+    // 使用位运算来表示某个数是否出现过
     int rowUsed[N];
     int columnUsed[N];
     int blockUsed[N];
@@ -42,27 +43,6 @@ public:
     {
         vector<vector<char> > obj(board);
         result.push_back(obj);
-    }
-
-    void printBoard(Board &board)
-    {
-        for (int i = 0; i < board.size(); i++)
-        {
-            for (int j = 0; j < board[i].size(); j++)
-            {
-                cout << board[i][j] << " ";
-            }
-            cout << "\n";
-        }
-    }
-
-    void getResult()
-    {
-        for (size_t i = 0; i < result.size(); i++)
-        {
-            Board board = result[i];
-            printBoard(board);
-        }
     }
 
     void flip(int i, int j, int digit)
@@ -119,6 +99,15 @@ public:
         }
     }
 
+    void getResult()
+    {
+        for (size_t i = 0; i < result.size(); i++)
+        {
+            Board board = result[i];
+            printBoard(board);
+        }
+    }
+
     bool checkBoard(Board &board)
     {
         initState();
@@ -138,6 +127,18 @@ public:
             }
         }
         return true;
+    }
+
+    void printBoard(Board &board)
+    {
+        for (int i = 0; i < board.size(); i++)
+        {
+            for (int j = 0; j < board[i].size(); j++)
+            {
+                cout << board[i][j] << " ";
+            }
+            cout << "\n";
+        }
     }
 
     Board generateBoard(int digCount)
