@@ -461,6 +461,7 @@ int main(int argc, char *argv[])
     vector<int> range;
     int gameNumber;
     int gameLevel = 0;
+    int solution_count = 0;
 
     vector<Board> boards;
     ofstream outfile;
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
             tmp = params.find('u');
             if (tmp != params.end())
             {
-                // TODO： 保证唯一
+                solution_count = 1;
             }
 
             tmp = params.find('m');
@@ -528,9 +529,29 @@ int main(int argc, char *argv[])
             }
             else
             {
-                range.push_back(20);
-                range.push_back(55);
+                // 根据不同级别采取挖空数量不同
+                if (gameLevel == 1)
+                {
+                    range.push_back(20);
+                    range.push_back(30);
+                }
+                else if (gameLevel == 2)
+                {
+                    range.push_back(30);
+                    range.push_back(40);
+                }
+                else if (gameLevel == 3)
+                {
+                    range.push_back(40);
+                    range.push_back(55);
+                }
+                else
+                {
+                    range.push_back(20);
+                    range.push_back(55);
+                }
             }
+
             outfile.open("game.txt", ios::out | ios::trunc);
             generateGame(gameNumber, gameLevel, range, outfile, player);
             range.clear();
