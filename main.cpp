@@ -323,28 +323,7 @@ void writeFile(vector<Board> boards, ofstream &f)
     }
 }
 
-void test2(const char **param)
-{
-    // SudokuPlayer player;
-    // player.generateBoard(50);
-    // return;
-    // for (int i = 20; i < 56; i++)
-    // {
-    //     player.generateBoard(i);
-    //     cout << "--------------------------" << i << endl;
-    // }
-    // for (int i = 0; strlen(param[i]) != 0; i++)
-    // {
-    //     cout << param[i] << endl;
-    // }
-
-    // for (int i = 0; i < 100; i++)
-    // {
-    //     int digit = rand() % 36 + 20;
-    //     cout << digit << " ";
-    // }
-}
-
+// 解析输入参数
 map<char, string> parse(int argc, char *argv[])
 {
     map<char, string> params;
@@ -449,9 +428,6 @@ int main(int argc, char *argv[])
 {
     srand((unsigned)time(NULL));
     SudokuPlayer player;
-
-    // test2(p);
-    // return 0;
 
     map<char, string> params = parse(argc, argv);
     map<char, string>::iterator it, tmp;
