@@ -59,7 +59,7 @@ public:
         {
             for (int j = 0; j < N; j++)
             {
-                if (board[i][j] == '.')
+                if (board[i][j] == '$')
                 {
                     spaces.push_back(pair<int, int>(i, j));
                 }
@@ -115,7 +115,7 @@ public:
         {
             for (int j = 0; j < 9; j++)
             {
-                if (board[i][j] != '.')
+                if (board[i][j] != '$')
                 {
                     int digit = board[i][j] - '1';
                     if ((rowUsed[i] | columnUsed[j] | blockUsed[(i / 3) * 3 + j / 3]) & (1 << digit))
@@ -143,7 +143,7 @@ public:
 
     Board generateBoard(int digCount)
     {
-        vector<vector<char> > board(N, vector<char>(N, '.'));
+        vector<vector<char> > board(N, vector<char>(N, '$'));
         vector<int> row = getRand9();
         for (int i = 0; i < 3; i++)
         {
@@ -160,10 +160,10 @@ public:
         {
             int x = rand() % 9;
             int y = rand() % 9;
-            if (board[x][y] == '.')
+            if (board[x][y] == '$')
                 continue;
             char tmp = board[x][y];
-            board[x][y] = '.';
+            board[x][y] = '$';
 
             solveSudoku(board);
             if (result.size() == 1)
@@ -295,7 +295,7 @@ vector<Board> readFile(string filePath)
         }
         for (int i = 0; i < strlen(data); i++)
         {
-            if (('1' <= data[i] && data[i] <= '9') || data[i] == '.')
+            if (('1' <= data[i] && data[i] <= '9') || data[i] == '$')
             {
                 row.push_back(data[i]);
             }
